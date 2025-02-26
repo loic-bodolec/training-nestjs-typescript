@@ -1,0 +1,49 @@
+name: test
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      #   - name: Set environment variables
+      #     run: |
+      #       echo "GRAPH_API_KEY=${{ secrets.GRAPH_API_KEY }}" >> $GITHUB_ENV
+      #       echo "REPO_OWNER=${{ github.repository_owner }}" >> $GITHUB_ENV
+      #       echo "REPO_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+      #       echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
+      #       echo "COMMIT_SHA=${{ github.sha }}" >> $GITHUB_ENV
+      #       echo "TRIGGER_EVENT=${{ github.event_name }}" >> $GITHUB_ENV
+      #       echo "SHA=${{ github.sha }}" >> $GITHUB_ENV
+      #       echo "PUBLISH_GRAPH=true" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+    #   - name: Publish Graph (if applicable)
+    #     if: env.PUBLISH_GRAPH == 'true'
+    #     run: npm run publish-graph
