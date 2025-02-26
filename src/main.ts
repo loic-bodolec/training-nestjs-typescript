@@ -3,11 +3,13 @@ import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { GraphPublisher } from '@nestjs/devtools-integration';
 
+const logger = new Logger('MainLogger');
+
 async function bootstrap() {
-  const logger = new Logger('MainLogger');
   const shouldPublishGraph = process.env.PUBLISH_GRAPH === 'true';
 
   const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn'],
     snapshot: true,
     preview: shouldPublishGraph,
   });
@@ -35,4 +37,6 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  logger.error('Error during bootstrap', error);
+});
