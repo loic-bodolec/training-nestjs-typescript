@@ -1,11 +1,10 @@
-// NOTE 1: This file is the entry point of the application.
-// NOTE 2: This file is responsible for creating the Nest application instance and starting the server.
-// NOTE 3: This file is also responsible for publishing the graph snapshot to the DevTools server. (https://devtools.nestjs.com/login / https://docs.nestjs.com/devtools/ci-cd-integration)
 import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { GraphPublisher } from '@nestjs/devtools-integration';
 
 async function bootstrap() {
+  const logger = new Logger('MainLogger');
   const shouldPublishGraph = process.env.PUBLISH_GRAPH === 'true';
 
   const app = await NestFactory.create(AppModule, {
@@ -29,8 +28,10 @@ async function bootstrap() {
     await graphPublisher.publish(publishOptions);
 
     await app.close();
+    logger.log('Graph published and application closed.');
   } else {
     await app.listen(process.env.PORT ?? 3000);
+    logger.log(`Application is running on: ${await app.getUrl()}`);
   }
 }
 
